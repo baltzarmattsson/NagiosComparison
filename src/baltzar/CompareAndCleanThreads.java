@@ -35,6 +35,7 @@ import baltzar.hashmaptest.HashSearch;
 public class CompareAndCleanThreads {
 
     private static int rowCountOriginalFile;
+    private
 
     private static HashMap<String, Holder> indexesOriginal;
     private static HashMap<String, Holder> indexesNew;
