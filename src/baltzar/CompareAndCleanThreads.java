@@ -23,6 +23,7 @@ import org.jsoup.select.Elements;
 import jxl.Workbook;
 
 import baltzar.SplitAndSearch;
+import baltzar.hashmaptest.HashSearch;
 
 /**
  * Created by Baltzar on 2016-07-13.
@@ -54,43 +55,56 @@ public class CompareAndCleanThreads {
 
     public static void main(String[] args) {
 
-        dir = "/tmp/nagiosdiff/";
-        //dir = "/Users/baltzarmattsson/txt/";
+        //dir = "/tmp/nagiosdiff/";
+        dir = "/Users/baltzarmattsson/txt/";
 
         outputFileURLText = dir + "Comparison.txt";
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("[?] Send finished report via email? Y/N ");
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print("[?] Send finished report via email? Y/N ");
 
-        String answer = scanner.nextLine();
-        String email = "";
-        boolean send = false;
-        if (answer.equalsIgnoreCase("y")) {
-            send = true;
-            System.out.println("[+] To email: ");
-            email = scanner.nextLine();
-            if (!email.contains("@cybercom.com")) {
-                System.out.println("[!] Email is external, only @cybercom.com permitted");
-                System.exit(0);
-            }
-        } else if (answer.equalsIgnoreCase("n")) {
-            System.out.println("[-] No email will be sent");
-            send = false;
-        }
-        scanner.close();
+//        String answer = scanner.nextLine();
+//        String email = "";
+//        boolean send = false;
+//        if (answer.equalsIgnoreCase("y")) {
+//            send = true;
+//            System.out.println("[+] To email: ");
+//            email = scanner.nextLine();
+//            if (!email.contains("@cybercom.com")) {
+//                System.out.println("[!] Email is external, only @cybercom.com permitted");
+//                System.exit(0);
+//            }
+//        } else if (answer.equalsIgnoreCase("n")) {
+//            System.out.println("[-] No email will be sent");
+//            send = false;
+//        }
+//        scanner.close();
         System.out.println("[+] Starting analysis...");
 
-        try {
-
-            GetAndCleanNagiosFiles();
-            GetColumnInfo();
-            CreateFilesWithCorrectIndexes();
-            Compare(); // org new output
-            //BuildExcelFile();
-            //if (send) mail(email);
-            //else System.out.println("[+] COMPARISON COMPLETE [+]\n---------------------------");
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        int numberOfLoops = 1;
+        
+        long[] times = new long[numberOfLoops];
+        long start = 0;
+        
+		for (int i = 0; i < numberOfLoops; i++) {
+			try {
+				start = System.currentTimeMillis();
+				GetAndCleanNagiosFiles();
+				GetColumnInfo();
+				CreateFilesWithCorrectIndexes();
+				Compare(); // org new output
+				BuildExcelFile();
+				// if (send) mail(email);
+				// else System.out.println("[+] COMPARISON COMPLETE
+				// [+]\n---------------------------");
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			times[i] = System.currentTimeMillis()-start;
+		}
+        
+        for (int i = 0; i < numberOfLoops; i++) {
+        	System.out.println("Run: " + (i+1) + " - " + new Date(times[i]).toString());
         }
     }
 
@@ -118,14 +132,22 @@ public class CompareAndCleanThreads {
     }
 
     public enum Keep {
-        YES, NO, BOTH_COLS_EXIST, ALL_VALUES_IN_ORIGINAL_SAME_AND_BOTH_COLS_EXIST
+        YES, NO, BOTH_COLS_EXIST
     }
 
-
+    public static boolean isNumber(String toParse) {
+    	if (toParse.length() == 0 || toParse.equals("")) return false;
+    	char[] ca = toParse.toCharArray();
+    	for (char c : ca) {
+    		if (!Character.isDigit(c)) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 
     public static void GetAndCleanNagiosFiles() {
 
-        // Return: [0] = original, [1] = new
 
         originalHTMLFile = dir + "gamlaservices.html";
         oldFileText = dir + "gamlaservicescleaned.txt";
@@ -142,21 +164,21 @@ public class CompareAndCleanThreads {
 
             /*** Getting PWs****/
 
-            BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/IdeaProjects/NagiosComparison/src/baltzar/creds"))));
-            String frontcred = passread.readLine();
-            String omdcred = passread.readLine();
-            emailpass = passread.readLine();
+            //BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/IdeaProjects/NagiosComparison/src/baltzar/creds"))));
+//            String frontcred = passread.readLine();
+//            String omdcred = passread.readLine();
+//            emailpass = passread.readLine();
 
             /*** //PWS ***/
 
-            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
-            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
-            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
+//            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
+//            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
+//            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
 
 
             // Read the new nagios file and remove the stuff we don't want
             // TODO ta bort kommentarer
-            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
+//            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
 
             for (int times = 0; times < 2; times++) {
 
@@ -230,7 +252,6 @@ public class CompareAndCleanThreads {
         File newFile = new File(newFileText);
         BufferedReader br = null;
         BufferedWriter bw = null;
-        StringBuilder builder = new StringBuilder();
 
         try {
             /**** 	--ORIGINAL FILE--	****/
@@ -259,6 +280,8 @@ public class CompareAndCleanThreads {
                 indexesOriginal.put(sa[i], new Holder(i));
                 numberOfColumnsOriginal++;
             }
+            
+            br.close();
             /**** 	--END OF - ORIGINAL FILE--	****/
 
 
@@ -289,6 +312,7 @@ public class CompareAndCleanThreads {
                 numberOfColumnsNew++;
             }
 
+            br.close();
             /**** 	--END OF - NEW FILE--	****/
 
             /*** Comparing which columns are in the old one but not in the new.
@@ -319,13 +343,13 @@ public class CompareAndCleanThreads {
 
             // Check all rows in ORIGINAL FILE, if all rows of a column have the same value, we mark keep = false
 
-            HashMap<String, ArrayList<String>> orgVals = new HashMap<String, ArrayList<String>>();
+            HashMap<String, HashSet<String>> orgVals = new HashMap<String, HashSet<String>>();
             // Fill the arraylist on each ColumnName with a new ArrayList to later hold the values of the rows in original file
-            for (String s : indexesOriginal.keySet()) orgVals.put(s, new ArrayList<String>());
+            for (String s : indexesOriginal.keySet()) orgVals.put(s, new HashSet<String>());
 
-            HashMap<String, ArrayList<String>> newVals = new HashMap<String, ArrayList<String>>();
+            HashMap<String, HashSet<String>> newVals = new HashMap<String, HashSet<String>>();
             // The same as above, but for the new file
-            for (String s : indexesNew.keySet()) newVals.put(s, new ArrayList<String>());
+            for (String s : indexesNew.keySet()) newVals.put(s, new HashSet<String>());
 
             // READING OF ORIGINAL FILE COLUMN VALUES
             br = new BufferedReader(new FileReader(originalFile));
@@ -346,11 +370,12 @@ public class CompareAndCleanThreads {
                     String key = entry.getKey();
                     Keep keep = entry.getValue().getKeep();
                     int colIndex = entry.getValue().getIndex();
-                    ArrayList<String> a = orgVals.get(key);
+                    HashSet<String> a = orgVals.get(key);
                     if (keep != Keep.NO) a.add(currentLine[colIndex]);
                 }
             }
-
+            br.close();
+           
             // READING OF NEW FILE COLUMN VALUES
             br = new BufferedReader(new FileReader(newFile));
             br.readLine(); // to get rid of column names
@@ -366,7 +391,7 @@ public class CompareAndCleanThreads {
                     String key = entry.getKey();
                     Keep keep = entry.getValue().getKeep();
                     int colIndex = entry.getValue().getIndex();
-                    ArrayList<String> a = newVals.get(key);
+                    HashSet<String> a = newVals.get(key);
                     if (keep != Keep.NO) a.add(currentLine[colIndex]);
                 }
             }
@@ -376,30 +401,26 @@ public class CompareAndCleanThreads {
                 String key = map.getKey();
                 Keep keep = map.getValue().getKeep();
                 if (keep != Keep.NO) {
-                    ArrayList<String> orgColVals = orgVals.get(key);
-                    String sOrg = orgColVals.get(0).replaceAll("\u00a0", " ").trim();
+                    HashSet<String> orgColVals = orgVals.get(key);
                     Holder tempHoldOrg = indexesOriginal.get(key);
-                    for (String sOrgLoop : orgColVals) {
-                        if (!sOrg.equals(sOrgLoop)) {
-                            tempHoldOrg.setKeep(Keep.ALL_VALUES_IN_ORIGINAL_SAME_AND_BOTH_COLS_EXIST);
-                        }
-                    }
-
                     Holder tempHoldNew = null;
+                    
                     if (newVals.get(key) != null && newVals.get(key).size() != 0) {
-                        ArrayList<String> newColVals = newVals.get(key);
-                        String sNew = newColVals.get(0).replaceAll("\u00a0"," ").trim();
-                        tempHoldNew = indexesNew.get(key);
-                        for (String sNewLoop : newColVals) {
-
-                            if (!sNew.equals(sNewLoop) || !sNew.equals(sOrg)) {
-
-                                tempHoldNew.setKeep(Keep.YES); // By now, we know that both columns exist, and the values are not the same in the old, new, and compared to eachother, therefore we keep it
-                                tempHoldOrg.setKeep(Keep.YES);
-                            }
-                        }
+                    	tempHoldNew = indexesNew.get(key);
+                    	HashSet<String> newColVals = newVals.get(key);
+                    	
+                    	HashSet<String> combinedVals = new HashSet<String>();
+                    	
+                    	combinedVals.addAll(orgColVals);
+                    	combinedVals.addAll(newColVals);
+                    	
+                    	if (combinedVals.size() > 1) { // If size > 1, we have two unique values, which means we must keep the column
+                    		tempHoldOrg.setKeep(Keep.YES);
+                    		tempHoldNew.setKeep(Keep.YES);
+                    	}
                     }
-                    if (tempHoldOrg.getKeep() == Keep.BOTH_COLS_EXIST || tempHoldOrg.getKeep() == Keep.ALL_VALUES_IN_ORIGINAL_SAME_AND_BOTH_COLS_EXIST) tempHoldOrg.setKeep(Keep.NO);
+                    
+                    if (tempHoldOrg.getKeep() == Keep.BOTH_COLS_EXIST) tempHoldOrg.setKeep(Keep.NO);
                     if (tempHoldNew != null && tempHoldNew.getKeep() == Keep.BOTH_COLS_EXIST) tempHoldNew.setKeep(Keep.NO);
                 }
             }
@@ -521,13 +542,10 @@ public class CompareAndCleanThreads {
 
         System.out.println(dir + originalFileCorrectIndexes);
         File originalFile = new File(dir + originalFileCorrectIndexes);
-        File newFile = new File(newFileCorrectIndexes);
         File outputFile = new File(outputFileURLText);
         BufferedReader br = null;
-        BufferedReader br2 = null;
         BufferedWriter bw = null;
         StringBuilder builder = new StringBuilder();
-        StringBuilder builder2 = new StringBuilder();
 
         br = new BufferedReader(new FileReader(originalFile));
         bw = new BufferedWriter(new FileWriter(outputFile));
@@ -550,7 +568,7 @@ public class CompareAndCleanThreads {
                 }
             }
             builder.append("Beredskap\t"
-                    + "Beredskap i Service\t"
+            		+ "Beredskap Service\t"
                     + "Exists Fully\t"
                     + "Exists Partially\t"
                     + "Diff On Col(s)\n");
@@ -571,23 +589,16 @@ public class CompareAndCleanThreads {
 
 
             while ((originalLine = br.readLine()) != null) {
+            
 
-                /*** COOL PRINTBOY_96***/
-                DecimalFormat df = new DecimalFormat("0.00");
-                double d = (rowsRead * 100.0) / (double) rowCountOriginalFile;
+//                Object[] returnvalues = SplitAndSearch.splitAndSearch(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns);
+            	
+            	String[] orgLineSplit = originalLine.split("\t");
+            	beredskap = orgLineSplit[0].contains("--BL--");
+            	beredskapService = orgLineSplit[1].contains("--BL--");
 
-                for (int i = 0; i < d; i++) builder.append("=");
-                builder.append("> " + df.format(d) + "% done");
-                String anim = "|/-\\";
-                System.out.write(("\r[" + anim.charAt((int) (d % anim.length())) + "]" + builder.toString()).getBytes());
-                builder.setLength(0);
-
-                if (d == 100.0) System.out.write(("\n\r[+] 100.0% done!").getBytes());
-                /*** PRINT ***/
-
-
-                Object[] returnvalues = SplitAndSearch.splitAndSearch(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns);
-
+            	Object[] returnvalues = HashSearch.SearchHashmap(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns);
+            	
                 String searchResult = (String) returnvalues[0];
                 existsFully = (boolean) returnvalues[1];
                 existsPartially = (boolean) returnvalues[2];
@@ -611,7 +622,7 @@ public class CompareAndCleanThreads {
 
                 builder.setLength(0);
                 builder.append(originalLine);
-                builder.append((beredskap) ? "\ttrueBL\t" : "\tfalseBL\t");
+                builder.append((beredskap) ? "trueBL\t" : "falseBL\t");
                 builder.append((beredskapService) ? "trueBL-S\t" : "falseBL-S\t");
                 builder.append((existsFully) ? "trueFully\t" : "falseFully\t");
                 builder.append((existsPartially) ? "truePart" : "falsePart");
@@ -630,7 +641,6 @@ public class CompareAndCleanThreads {
 
 
         if (br != null) br.close();
-        if (br2 != null) br.close();
         if (bw != null) bw.close();
 
         System.out.println("\n[+] Comparison successfully completed!");
@@ -661,13 +671,12 @@ public class CompareAndCleanThreads {
                     Label label;
                     Number number;
                     int parsedNum = 0;
-                    boolean isNumber = true;
-                    try {
-                        parsedNum = Integer.parseInt(currentLine[col]);
-                    } catch (NumberFormatException nfe) {
-                        isNumber = false;
+                    boolean isNumber = false;
+                    if (isNumber(currentLine[col])) {
+                    	parsedNum = Integer.parseInt(currentLine[col]);
+                    	isNumber = true;
                     }
-                    if (!isNumber) {
+                    if (isNumber == false) {
                         if (row == 0) {
                             label = new Label(col, row, currentLine[col]);
                             WritableFont cellFont = new WritableFont(WritableFont.ARIAL, 10);
@@ -680,7 +689,7 @@ public class CompareAndCleanThreads {
                         }
 
                         wsheet.addCell(label);
-                    } else {
+                    } else if (isNumber) {
                         number = new Number(col, row, parsedNum);
                         wsheet.addCell(number);
                     }
