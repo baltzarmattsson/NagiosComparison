@@ -46,7 +46,7 @@ public class CompareAndCleanHashmap {
 
     public static void main(String[] args) {
 
-        dir = "/tmp/nagiosdiff/";
+        dir = "/tmp/nagiosdiff/"; // test
         //dir = "/Users/baltzarmattsson/txt/";
 
         outputFileURLText = dir + "Comparison.txt";
