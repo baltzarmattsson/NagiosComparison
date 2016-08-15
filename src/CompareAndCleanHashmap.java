@@ -272,21 +272,20 @@ public class CompareAndCleanHashmap {
             indexesOriginal = new HashMap<String, Holder>();
             br = new BufferedReader(new FileReader(originalFile));
 
-            String orgLine = "";
-            String temp = "";
-            while ((temp = br.readLine()) != null) {
-                if (temp.contains("Host") && temp.contains("Description")) {
-                    orgLine = temp.replace("Default Contacts/Groups", "Contacts"); // since the new and old differs in col-name
+            String columnsOfOriginalFile = "";
+            while ((columnsOfOriginalFile = br.readLine()) != null) {
+                if (columnsOfOriginalFile.contains("Host") && columnsOfOriginalFile.contains("Description")) {
+                    columnsOfOriginalFile = columnsOfOriginalFile.replace("Default Contacts/Groups", "Contacts"); // since the new and old differs in col-name
                     break;
                 }
             }
-            if (orgLine.length() == 0) {
+            if (columnsOfOriginalFile.length() == 0) {
                 System.out.println("Error: Could not find column headers for original file");
                 System.exit(0);
             }
 
             // Getting the indexes of each column
-            String[] sa = orgLine.split("\t");
+            String[] sa = columnsOfOriginalFile.split("\t");
             int numberOfColumnsOriginal = 0;
             for (int i = 0; i < sa.length; i++) {
                 indexesOriginal.put(sa[i], new Holder(i));
@@ -302,22 +301,20 @@ public class CompareAndCleanHashmap {
             indexesNew = new HashMap<String, Holder>();
             br = new BufferedReader(new FileReader(newFile));
 
-            String newLine = "";
-            temp = "";
-            while ((temp = br.readLine()) != null) {
-                if (temp.contains("Host") && temp.contains("Description")) {
-                    newLine = temp;
+            String columnsOfNewFile = "";
+            while ((columnsOfNewFile = br.readLine()) != null) {
+                if (columnsOfNewFile.contains("Host") && columnsOfNewFile.contains("Description")) {
                     break;
                 }
             }
 
-            if (newLine.length() == 0) {
+            if (columnsOfNewFile.length() == 0) {
                 System.out.println("Error: Could not find column headers for new file");
                 System.exit(0);
             }
 
             // Getting the indexes of each column
-            sa = newLine.split("\t");
+            sa = columnsOfNewFile.split("\t");
             int numberOfColumnsNew = 0;
             for (int i = 0; i < sa.length; i++) {
                 indexesNew.put(sa[i], new Holder(i));
@@ -369,7 +366,7 @@ public class CompareAndCleanHashmap {
             String s;
             br.readLine(); // to get rid of column names
             while ((s = br.readLine()) != null) {
-                while (s.equals("")) s = br.readLine();
+                while (s.equals("")) s = br.readLine(); // Skipping empty lines
 
                 currentLine = new String[numberOfColumnsOriginal];
                 String[] tmp = s.split("\t");
@@ -458,7 +455,6 @@ public class CompareAndCleanHashmap {
             }
         }
 
-
         System.out.println("[+] Unnecessary columns removed from analysis...");
     }
 
@@ -466,7 +462,7 @@ public class CompareAndCleanHashmap {
         BufferedReader br = null;
         BufferedWriter bw = null;
         StringBuilder builder = new StringBuilder();
-        String s = "";
+
         try {
 
             int max = 0;
@@ -503,11 +499,12 @@ public class CompareAndCleanHashmap {
                     bw = new BufferedWriter(new FileWriter(new File(dir + originalFileCorrectIndexes)));
                 }
 
+                String readLine = "";
                 String[] sSplit;
-                while ((s = br.readLine()) != null) {
-                    while (s.equals("")) s = br.readLine(); // rid of blank rows
+                while ((readLine = br.readLine()) != null) {
+                    while (readLine.equals("")) readLine = br.readLine(); // rid of blank rows
 
-                    sSplit = s.split("\t");
+                    sSplit = readLine.split("\t");
                     for (int j = 0; j < sSplit.length; j++)
                         sSplit[j] = sSplit[j].replaceAll("\u00a0", "").trim();
 
@@ -519,7 +516,7 @@ public class CompareAndCleanHashmap {
                         String colValue = "";
                         try {
                             colValue = (index > sSplit.length-1 || sSplit[index] == null) ? ""
-                                    : sSplit[index].replaceAll("\u00a0"," ").trim();
+                                    : sSplit[index].replaceAll("\u00a0"," ").trim(); // Get rid of _ALL_ whitespace, including HTML-whitespace
                         } catch (ArrayIndexOutOfBoundsException ae) {
                             colValue = "";
                         }
@@ -551,7 +548,6 @@ public class CompareAndCleanHashmap {
 
     public static void Compare() throws IOException {
 
-        System.out.println(dir + originalFileCorrectIndexes);
         File originalFile = new File(dir + originalFileCorrectIndexes);
         File outputFile = new File(outputFileURLText);
         BufferedReader br = null;
@@ -572,7 +568,10 @@ public class CompareAndCleanHashmap {
         String[] columnOrder = new String[numberOfColumns];
         int correctIndex = 0;
 
+        // Adding the columns in the output file
+
         builder.append("Verified by person\t");
+
         for (int i = 0; i < max; i++) {
             if (tempColumnOrder.get(i) != null) {
                 columnOrder[correctIndex] = tempColumnOrder.get(i);
@@ -600,8 +599,6 @@ public class CompareAndCleanHashmap {
         boolean existsFully = false;
         boolean existsPartially = false;
         String diffLocationColumnIndex = ""; //if theres comments in the previous diffs, we can add them here to reduce manual work
-
-
 
         while ((originalLine = br.readLine()) != null) {
 
@@ -649,10 +646,6 @@ public class CompareAndCleanHashmap {
             diffLocationColumnIndex = "";
             previousComment = "";
 
-
-            /*** ***/
-            rowsRead++;
-            /*** ***/
         }
 
 
