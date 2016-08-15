@@ -25,9 +25,7 @@ import jxl.Workbook;
 
 public class CompareAndCleanHashmap {
 
-    private static int rowCountOriginalFile;
-
-    private static HashMap<String, Holder> indexesOriginal;
+	private static HashMap<String, Holder> indexesOriginal;
     private static HashMap<String, Holder> indexesNew;
     private static String dir;
     private static String outputFileURLText;
@@ -39,6 +37,7 @@ public class CompareAndCleanHashmap {
     private static String newFileCorrectIndexes;
     private static String excelFileURL;
     private static int numberOfColumns;
+    private static ArrayList<String> nagiosDOCgetURL;
 
     //
     private static String emailpass;
@@ -46,12 +45,33 @@ public class CompareAndCleanHashmap {
 
     public static void main(String[] args) {
 
-        dir = "/tmp/nagiosdiff/"; // test
-        //dir = "/Users/baltzarmattsson/txt/";
+//        dir = "/tmp/nagiosdiff/"; // testr
+        dir = "/Users/baltzarmattsson/txt/";
 
         outputFileURLText = dir + "Comparison.txt";
 
 //        Scanner scanner = new Scanner(System.in);
+//        
+//        System.out.println("[:] Enter url to previous nagios diffs: (exit with \"EXIT\"): ");
+//        String url = scanner.nextLine();
+//        nagiosDOCgetURL = new ArrayList<String>();
+//        while (!url.equals("EXIT")) {
+//        	while (!url.contains("confluence.cybercom")) {
+//        		System.out.println("[!] URL does not contain confluence.cybercom, enter URL again or \"EXIT\"");
+//        		url = scanner.nextLine();
+//        	}
+//        	nagiosDOCgetURL.add(url);     
+//        	url = scanner.nextLine();
+//        }
+//        System.out.println("[+] URLs saved ");
+        /** ta bort	**/ 
+        nagiosDOCgetURL = new ArrayList<String>();
+        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=48209859");
+//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=48889956");
+//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479820");
+//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479914");
+        /** 		**/
+        
 //        System.out.print("[?] Send finished report via email? Y/N ");
 
 //        String answer = scanner.nextLine();
@@ -85,7 +105,7 @@ public class CompareAndCleanHashmap {
 				CreateFilesWithCorrectIndexes();
 				Compare(); // org new output
 				BuildExcelFile();
-                mail("baltzar.mattsson@cybercom.com");
+                //mail("baltzar.mattsson@cybercom.com");
 				// if (send) mail(email);
 				// else System.out.println("[+] COMPARISON COMPLETE
 				// [+]\n---------------------------");
@@ -156,21 +176,21 @@ public class CompareAndCleanHashmap {
 
             /*** Getting PWs****/
 
-            BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/Documents/Baltzar/creds"))));
-            String frontcred = passread.readLine();
-            String omdcred = passread.readLine();
-            emailpass = passread.readLine();
+//            BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/Documents/Baltzar/creds"))));
+//            String frontcred = passread.readLine();
+//            String omdcred = passread.readLine();
+//            emailpass = passread.readLine();
 
             /*** //PWS ***/
 
-            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
-            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
-            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
+//            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
+//            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
+//            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
 
 
             // Read the new nagios file and remove the stuff we don't want
             // TODO ta bort kommentarer
-            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
+//            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
 
             for (int times = 0; times < 2; times++) {
 
@@ -351,7 +371,6 @@ public class CompareAndCleanHashmap {
             while ((s = br.readLine()) != null) {
                 while (s.equals("")) s = br.readLine();
 
-                rowCountOriginalFile++;
                 currentLine = new String[numberOfColumnsOriginal];
                 String[] tmp = s.split("\t");
                 for (int i = 0; i < numberOfColumnsOriginal-1; i++) {
@@ -552,6 +571,8 @@ public class CompareAndCleanHashmap {
 
             String[] columnOrder = new String[numberOfColumns];
             int correctIndex = 0;
+            
+            builder.append("Verified by person\t");
             for (int i = 0; i < max; i++) {
                 if (tempColumnOrder.get(i) != null) {
                     columnOrder[correctIndex] = tempColumnOrder.get(i);
@@ -573,27 +594,28 @@ public class CompareAndCleanHashmap {
             int rowsRead = 1;
             System.out.println("[+] Comparing files");
 
+            String previousComment = "";
             boolean beredskap = false;
             boolean beredskapService = false;
             boolean existsFully = false;
             boolean existsPartially = false;
-            String diffLocationColumnIndex = "";
+            String diffLocationColumnIndex = ""; //if theres comments in the previous diffs, we can add them here to reduce manual work
+            
 
 
             while ((originalLine = br.readLine()) != null) {
-            
-
-//                Object[] returnvalues = SplitAndSearch.splitAndSearch(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns);
             	
             	String[] orgLineSplit = originalLine.split("\t");
             	beredskap = orgLineSplit[0].contains("--BL--");
             	beredskapService = orgLineSplit[1].contains("--BL--");
 
-            	Object[] returnvalues = HashSearch.SearchHashmap(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns);
+            	Object[] returnvalues = HashSearch.SearchHashmap(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns, nagiosDOCgetURL);
             	
                 String searchResult = (String) returnvalues[0];
                 existsFully = (boolean) returnvalues[1];
                 existsPartially = (boolean) returnvalues[2];
+                previousComment = (String) returnvalues[3]; // TODO
+                
 
                 if (!existsFully && existsPartially) {
                     String[] orgArray = originalLine.split("\t");
@@ -613,6 +635,7 @@ public class CompareAndCleanHashmap {
 
 
                 builder.setLength(0);
+                builder.append(previousComment + "\t");
                 builder.append(originalLine);
                 builder.append((beredskap) ? "trueBL\t" : "falseBL\t");
                 builder.append((beredskapService) ? "trueBL-S\t" : "falseBL-S\t");
@@ -624,6 +647,7 @@ public class CompareAndCleanHashmap {
                 bw.write(builder.toString());
                 builder.setLength(0);
                 diffLocationColumnIndex = "";
+                previousComment = "";
 
 
                 /*** ***/
