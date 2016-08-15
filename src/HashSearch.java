@@ -9,17 +9,17 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class HashSearch {
-	
+
 	private static boolean initialized = false;
 	private static boolean previousInitialized = false;
 	private static HashMap<String, String> newFileMap;
 	private static ArrayList<HashMap<String, String>> prevDiffs = new ArrayList<HashMap<String, String>>();
 
 	public static Object[] SearchHashmap(String fileURL, String dir, String searchQuery, int numberOfColumns, ArrayList<String> nagiosDOCgetURL) {
-		
+
 		if (initialized == false) initialize(fileURL, dir, searchQuery, numberOfColumns);
 		if (previousInitialized == false && nagiosDOCgetURL.size() > 0) initializePrevious(nagiosDOCgetURL);
-		
+
 		return search(searchQuery);
 	}
 
@@ -41,15 +41,15 @@ public class HashSearch {
 		et.stopMasking();
 
 		String tempFile = "/tmp/nag/temp.doc";
-		
+
 		for (String url : urls) {
 			try {
 				Runtime.getRuntime().exec("curl --user bamat1:" + password + " " + url + " -o " + tempFile);
 				Thread.sleep(2000);
-				
+
 				// Checking if comments exist in previous diffs
 				prevDiffs.add(GetDiffComments.getComment(tempFile));
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -57,16 +57,16 @@ public class HashSearch {
 			}
 		}
 		previousInitialized = true;
-		
+
 		//test TODO
-//		HashMap<String, String> m = prevDiffs.get(0);
-//		for (Map.Entry<String, String> map : m.entrySet()) {
-//			System.out.println(map.getKey() + " _ " + map.getValue());
-//		}
-//		
+		//HashMap<String, String> m = prevDiffs.get(0);
+		//for (Map.Entry<String, String> map : m.entrySet()) {
+		//	System.out.println(map.getKey() + " _ " + map.getValue());
+		//}
+
 		//test
 	}
-	
+
 	private static void initialize(String fileURL, String dir, String searchQuery, int numberOfColumns) {
 
 		/** 	Entries are saved as key: "host + {tab} + description"	**/
@@ -77,7 +77,7 @@ public class HashSearch {
 		try {
 			br = new BufferedReader(new FileReader(new File(fileURL)));
 			br.readLine(); //get rid of column names
-			
+
 			String s = "";
 			while ((s = br.readLine()) != null) {
 				String[] sSplit = s.replaceAll(" --BL--", "").split("\t");
@@ -91,12 +91,12 @@ public class HashSearch {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		initialized = true;
 	}
-	
+
 	private static Object[] search(String searchQuery) {
-		
+
 		String[] sqSplit = searchQuery.replaceAll(" --BL--", "").split("\t");
 		String hostQuery = sqSplit[0].trim();
 		String descQuery = sqSplit[1].trim();
@@ -104,37 +104,39 @@ public class HashSearch {
 
 		boolean existsFully = false;
 		boolean existsPartially = false;
-		
+
 		String value = "";
 		String previousComment = "";
-		
+
 		if (newFileMap.get(key) != null) {
 			value = newFileMap.get(key);
 			if (searchQuery.equals(value)) {
 				existsFully = true;
 			} else {
 				existsPartially = true; // since only the host + description is equal in both files, the rest must be investigated
-			}			
+			}
 		}
 		for (HashMap<String, String> map : prevDiffs) {
-			if (key.contains("mobill-sql2")) {
+			if (key.contains("mobill-sql2") && key.contains("Disk d:")) {
 				String s = map.get(key);
 				key.length();
 			}
-			if (map.get(key) != null && !map.get(key).equals("")) {
-				System.out.println(map.get(key));
+			//if (map.get(key) != null && !map.get(key).equals("")) {
+			if (map.get(key) != null) {
+				//System.out.println(map.get(key));
 				previousComment += map.get(key) + ", ";
 			}
 		}
-		
+
 		Object[] ret = new Object[4];
-		
+
 		ret[0] = value;
 		ret[1] = existsFully;
 		ret[2] = existsPartially;
-		if (previousComment.length() > 2) previousComment = previousComment.substring(0, previousComment.length()-2); // to get rid of ", "
+		if (previousComment.length() > 2)
+			previousComment = previousComment.substring(0, previousComment.length()-2); // to get rid of ", "
 		ret[3] = previousComment;
-		
+
 		return ret;
 	}
 

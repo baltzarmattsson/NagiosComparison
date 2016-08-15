@@ -38,14 +38,14 @@ public class GetDiffComments {
 			for (int j = 0; (j < data.size() && j < 3); j++) {
 				String dataString = data.get(j).toString().replaceAll("<[^>]*>|&nbsp;|\n", "");
 				switch (j) {
-				case 0:
-					comment = dataString;
-					break;
-				case 1:
-					host = dataString.replaceAll("--BL--", "");
-					break;
-				case 2:
-					service = dataString.replaceAll("--BL--", "");
+					case 0:
+						comment = dataString;
+						break;
+					case 1:
+						host = dataString.replaceAll("--BL--", "").trim();
+						break;
+					case 2:
+						service = dataString.replaceAll("--BL--", "").trim();
 				}
 			}
 //			System.out.println(comment + "\t" + host + "\t" + service);

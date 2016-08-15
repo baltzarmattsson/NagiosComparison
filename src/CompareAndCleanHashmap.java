@@ -25,7 +25,7 @@ import jxl.Workbook;
 
 public class CompareAndCleanHashmap {
 
-	private static HashMap<String, Holder> indexesOriginal;
+    private static HashMap<String, Holder> indexesOriginal;
     private static HashMap<String, Holder> indexesNew;
     private static String dir;
     private static String outputFileURLText;
@@ -45,13 +45,13 @@ public class CompareAndCleanHashmap {
 
     public static void main(String[] args) {
 
-//        dir = "/tmp/nagiosdiff/"; // testr
-        dir = "/Users/baltzarmattsson/txt/";
+        dir = "/tmp/nagiosdiff/"; // testr
+        //dir = "/Users/baltzarmattsson/txt/";
 
         outputFileURLText = dir + "Comparison.txt";
 
 //        Scanner scanner = new Scanner(System.in);
-//        
+//
 //        System.out.println("[:] Enter url to previous nagios diffs: (exit with \"EXIT\"): ");
 //        String url = scanner.nextLine();
 //        nagiosDOCgetURL = new ArrayList<String>();
@@ -60,18 +60,18 @@ public class CompareAndCleanHashmap {
 //        		System.out.println("[!] URL does not contain confluence.cybercom, enter URL again or \"EXIT\"");
 //        		url = scanner.nextLine();
 //        	}
-//        	nagiosDOCgetURL.add(url);     
+//        	nagiosDOCgetURL.add(url);
 //        	url = scanner.nextLine();
 //        }
 //        System.out.println("[+] URLs saved ");
-        /** ta bort	**/ 
+        /** ta bort	**/
         nagiosDOCgetURL = new ArrayList<String>();
         nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=48209859");
-//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=48889956");
-//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479820");
-//        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479914");
+        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=48889956");
+        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479820");
+        nagiosDOCgetURL.add("https://confluence.cybercom.com/exportword?pageId=49479914");
         /** 		**/
-        
+
 //        System.out.print("[?] Send finished report via email? Y/N ");
 
 //        String answer = scanner.nextLine();
@@ -93,30 +93,30 @@ public class CompareAndCleanHashmap {
         System.out.println("[+] Starting analysis...");
 
         int numberOfLoops = 1;
-        
+
         long[] times = new long[numberOfLoops];
         long start = 0;
-        
-		for (int i = 0; i < numberOfLoops; i++) {
-			try {
-				start = System.currentTimeMillis();
-				GetAndCleanNagiosFiles();
-				GetColumnInfo();
-				CreateFilesWithCorrectIndexes();
-				Compare(); // org new output
-				BuildExcelFile();
-                //mail("baltzar.mattsson@cybercom.com");
-				// if (send) mail(email);
-				// else System.out.println("[+] COMPARISON COMPLETE
-				// [+]\n---------------------------");
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-			times[i] = System.currentTimeMillis()-start;
-		}
-        
+
         for (int i = 0; i < numberOfLoops; i++) {
-        	System.out.println("Run: " + (i+1) + " - " + new Date(times[i]).toString());
+            try {
+                start = System.currentTimeMillis();
+                GetAndCleanNagiosFiles();
+                GetColumnInfo();
+                CreateFilesWithCorrectIndexes();
+                Compare(); // org new output
+                BuildExcelFile();
+                mail("baltzar.mattsson@cybercom.com");
+                // if (send) mail(email);
+                // else System.out.println("[+] COMPARISON COMPLETE
+                // [+]\n---------------------------");
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            times[i] = System.currentTimeMillis()-start;
+        }
+
+        for (int i = 0; i < numberOfLoops; i++) {
+            System.out.println("Run: " + (i+1) + " - " + new Date(times[i]).toString());
         }
     }
 
@@ -148,14 +148,14 @@ public class CompareAndCleanHashmap {
     }
 
     public static boolean isNumber(String toParse) {
-    	if (toParse.length() == 0 || toParse.equals("")) return false;
-    	char[] ca = toParse.toCharArray();
-    	for (char c : ca) {
-    		if (!Character.isDigit(c)) {
-    			return false;
-    		}
-    	}
-    	return true;
+        if (toParse.length() == 0 || toParse.equals("")) return false;
+        char[] ca = toParse.toCharArray();
+        for (char c : ca) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void GetAndCleanNagiosFiles() {
@@ -176,21 +176,21 @@ public class CompareAndCleanHashmap {
 
             /*** Getting PWs****/
 
-//            BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/Documents/Baltzar/creds"))));
-//            String frontcred = passread.readLine();
-//            String omdcred = passread.readLine();
-//            emailpass = passread.readLine();
+            BufferedReader passread = new BufferedReader(new FileReader((new File("/home/studentpoolen/Documents/Baltzar/creds"))));
+            String frontcred = passread.readLine();
+            String omdcred = passread.readLine();
+            emailpass = passread.readLine();
 
             /*** //PWS ***/
 
-//            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
-//            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
-//            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
+            Runtime.getRuntime().exec("mkdir -p " + dir); // creates the directory even though the subfolders doesnt exist before
+            Runtime.getRuntime().exec("curl --user " + frontcred +" http://192.168.90.36/cgi-bin/nagios3/config.cgi?type=services -o " + originalHTMLFile); // final frontier
+            Runtime.getRuntime().exec("curl --user " + omdcred + " http://192.168.91.10/prod/thruk/cgi-bin/config.cgi?type=services -o " + newHTMLFile); // omgd
 
 
             // Read the new nagios file and remove the stuff we don't want
             // TODO ta bort kommentarer
-//            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
+            Thread.sleep(5000); // Sleep for 5 seconds to wait for the files to load/appear in the folder
 
             for (int times = 0; times < 2; times++) {
 
@@ -292,7 +292,7 @@ public class CompareAndCleanHashmap {
                 indexesOriginal.put(sa[i], new Holder(i));
                 numberOfColumnsOriginal++;
             }
-            
+
             br.close();
             /**** 	--END OF - ORIGINAL FILE--	****/
 
@@ -386,7 +386,7 @@ public class CompareAndCleanHashmap {
                 }
             }
             br.close();
-           
+
             // READING OF NEW FILE COLUMN VALUES
             br = new BufferedReader(new FileReader(newFile));
             br.readLine(); // to get rid of column names
@@ -415,22 +415,22 @@ public class CompareAndCleanHashmap {
                     HashSet<String> orgColVals = orgVals.get(key);
                     Holder tempHoldOrg = indexesOriginal.get(key);
                     Holder tempHoldNew = null;
-                    
+
                     if (newVals.get(key) != null && newVals.get(key).size() != 0) {
-                    	tempHoldNew = indexesNew.get(key);
-                    	HashSet<String> newColVals = newVals.get(key);
-                    	
-                    	HashSet<String> combinedVals = new HashSet<String>();
-                    	
-                    	combinedVals.addAll(orgColVals);
-                    	combinedVals.addAll(newColVals);
-                    	
-                    	if (combinedVals.size() > 1) { // If size > 1, we have two unique values, which means we must keep the column
-                    		tempHoldOrg.setKeep(Keep.YES);
-                    		tempHoldNew.setKeep(Keep.YES);
-                    	}
+                        tempHoldNew = indexesNew.get(key);
+                        HashSet<String> newColVals = newVals.get(key);
+
+                        HashSet<String> combinedVals = new HashSet<String>();
+
+                        combinedVals.addAll(orgColVals);
+                        combinedVals.addAll(newColVals);
+
+                        if (combinedVals.size() > 1) { // If size > 1, we have two unique values, which means we must keep the column
+                            tempHoldOrg.setKeep(Keep.YES);
+                            tempHoldNew.setKeep(Keep.YES);
+                        }
                     }
-                    
+
                     if (tempHoldOrg.getKeep() == Keep.BOTH_COLS_EXIST) tempHoldOrg.setKeep(Keep.NO);
                     if (tempHoldNew != null && tempHoldNew.getKeep() == Keep.BOTH_COLS_EXIST) tempHoldNew.setKeep(Keep.NO);
                 }
@@ -561,106 +561,106 @@ public class CompareAndCleanHashmap {
         br = new BufferedReader(new FileReader(originalFile));
         bw = new BufferedWriter(new FileWriter(outputFile));
 
-            int max = 0;
-            HashMap<Integer, String> tempColumnOrder = new HashMap<Integer, String>();
-            for (Map.Entry<String, Holder> holder : indexesOriginal.entrySet()) {
-                if (holder.getValue().getKeep() == Keep.YES)
-                    tempColumnOrder.put(holder.getValue().getIndex(), holder.getKey());
-                if (holder.getValue().getIndex() > max) max = holder.getValue().getIndex();
+        int max = 0;
+        HashMap<Integer, String> tempColumnOrder = new HashMap<Integer, String>();
+        for (Map.Entry<String, Holder> holder : indexesOriginal.entrySet()) {
+            if (holder.getValue().getKeep() == Keep.YES)
+                tempColumnOrder.put(holder.getValue().getIndex(), holder.getKey());
+            if (holder.getValue().getIndex() > max) max = holder.getValue().getIndex();
+        }
+
+        String[] columnOrder = new String[numberOfColumns];
+        int correctIndex = 0;
+
+        builder.append("Verified by person\t");
+        for (int i = 0; i < max; i++) {
+            if (tempColumnOrder.get(i) != null) {
+                columnOrder[correctIndex] = tempColumnOrder.get(i);
+                builder.append(tempColumnOrder.get(i) + "\t");
+                correctIndex++;
             }
+        }
+        builder.append("Beredskap\t"
+                + "Beredskap Service\t"
+                + "Exists Fully\t"
+                + "Exists Partially\t"
+                + "Diff On Col(s)\n");
+        bw.write(builder.toString());
+        builder.setLength(0);
 
-            String[] columnOrder = new String[numberOfColumns];
-            int correctIndex = 0;
-            
-            builder.append("Verified by person\t");
-            for (int i = 0; i < max; i++) {
-                if (tempColumnOrder.get(i) != null) {
-                    columnOrder[correctIndex] = tempColumnOrder.get(i);
-                    builder.append(tempColumnOrder.get(i) + "\t");
-                    correctIndex++;
-                }
-            }
-            builder.append("Beredskap\t"
-            		+ "Beredskap Service\t"
-                    + "Exists Fully\t"
-                    + "Exists Partially\t"
-                    + "Diff On Col(s)\n");
-            bw.write(builder.toString());
-            builder.setLength(0);
+        String originalLine = "";
+        br.readLine(); // to get rid of the column names
 
-            String originalLine = "";
-            br.readLine(); // to get rid of the column names
+        int rowsRead = 1;
+        System.out.println("[+] Comparing files");
 
-            int rowsRead = 1;
-            System.out.println("[+] Comparing files");
-
-            String previousComment = "";
-            boolean beredskap = false;
-            boolean beredskapService = false;
-            boolean existsFully = false;
-            boolean existsPartially = false;
-            String diffLocationColumnIndex = ""; //if theres comments in the previous diffs, we can add them here to reduce manual work
-            
+        String previousComment = "";
+        boolean beredskap = false;
+        boolean beredskapService = false;
+        boolean existsFully = false;
+        boolean existsPartially = false;
+        String diffLocationColumnIndex = ""; //if theres comments in the previous diffs, we can add them here to reduce manual work
 
 
-            while ((originalLine = br.readLine()) != null) {
-            	
-            	String[] orgLineSplit = originalLine.split("\t");
-            	beredskap = orgLineSplit[0].contains("--BL--");
-            	beredskapService = orgLineSplit[1].contains("--BL--");
 
-            	Object[] returnvalues = HashSearch.SearchHashmap(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns, nagiosDOCgetURL);
-            	
-                String searchResult = (String) returnvalues[0];
-                existsFully = (boolean) returnvalues[1];
-                existsPartially = (boolean) returnvalues[2];
-                previousComment = (String) returnvalues[3]; // TODO
-                
+        while ((originalLine = br.readLine()) != null) {
 
-                if (!existsFully && existsPartially) {
-                    String[] orgArray = originalLine.split("\t");
-                    String[] newArray = searchResult.split("\t");
-                    for (int i = 0; i < numberOfColumns; i++) {
-                        String columnName = columnOrder[i];
-                        String colOrg = (i > orgArray.length - 1) ? "" : orgArray[i].replaceAll("\u00a0", " ").trim();
-                        String colNew = (i > newArray.length - 1) ? "" : newArray[i].replaceAll("\u00a0", " ").trim();
-                        if (!colOrg.equals(colNew)) {
-                            builder.append(diffLocationColumnIndex);
-                            builder.append((columnName + "=(old: \"" + colOrg + "\", new: \"" + colNew + "\")" + ", "));
-                            diffLocationColumnIndex = builder.toString();
-                            builder.setLength(0);
-                        }
+            String[] orgLineSplit = originalLine.split("\t");
+            beredskap = orgLineSplit[0].contains("--BL--");
+            beredskapService = orgLineSplit[1].contains("--BL--");
+
+            Object[] returnvalues = HashSearch.SearchHashmap(dir + newFileCorrectIndexes, dir, originalLine, numberOfColumns, nagiosDOCgetURL);
+
+            String searchResult = (String) returnvalues[0];
+            existsFully = (boolean) returnvalues[1];
+            existsPartially = (boolean) returnvalues[2];
+            previousComment = (String) returnvalues[3]; // TODO
+
+
+            if (!existsFully && existsPartially) {
+                String[] orgArray = originalLine.split("\t");
+                String[] newArray = searchResult.split("\t");
+                for (int i = 0; i < numberOfColumns; i++) {
+                    String columnName = columnOrder[i];
+                    String colOrg = (i > orgArray.length - 1) ? "" : orgArray[i].replaceAll("\u00a0", " ").trim();
+                    String colNew = (i > newArray.length - 1) ? "" : newArray[i].replaceAll("\u00a0", " ").trim();
+                    if (!colOrg.equals(colNew)) {
+                        builder.append(diffLocationColumnIndex);
+                        builder.append((columnName + "=(old: \"" + colOrg + "\", new: \"" + colNew + "\")" + ", "));
+                        diffLocationColumnIndex = builder.toString();
+                        builder.setLength(0);
                     }
                 }
-
-
-                builder.setLength(0);
-                builder.append(previousComment + "\t");
-                builder.append(originalLine);
-                builder.append((beredskap) ? "trueBL\t" : "falseBL\t");
-                builder.append((beredskapService) ? "trueBL-S\t" : "falseBL-S\t");
-                builder.append((existsFully) ? "trueFully\t" : "falseFully\t");
-                builder.append((existsPartially) ? "truePart" : "falsePart");
-                if (diffLocationColumnIndex.length() >= 2)
-                    builder.append("\t" + diffLocationColumnIndex.substring(0, diffLocationColumnIndex.length() - 2)); // -2 to get rid of ", "
-                builder.append("\n");
-                bw.write(builder.toString());
-                builder.setLength(0);
-                diffLocationColumnIndex = "";
-                previousComment = "";
-
-
-                /*** ***/
-                rowsRead++;
-                /*** ***/
             }
+
+
+            builder.setLength(0);
+            builder.append(previousComment + "\t");
+            builder.append(originalLine);
+            builder.append((beredskap) ? "trueBL\t" : "falseBL\t");
+            builder.append((beredskapService) ? "trueBL-S\t" : "falseBL-S\t");
+            builder.append((existsFully) ? "trueFully\t" : "falseFully\t");
+            builder.append((existsPartially) ? "truePart" : "falsePart");
+            if (diffLocationColumnIndex.length() >= 2)
+                builder.append("\t" + diffLocationColumnIndex.substring(0, diffLocationColumnIndex.length() - 2)); // -2 to get rid of ", "
+            builder.append("\n");
+            bw.write(builder.toString());
+            builder.setLength(0);
+            diffLocationColumnIndex = "";
+            previousComment = "";
+
+
+            /*** ***/
+            rowsRead++;
+            /*** ***/
+        }
 
 
         if (br != null) br.close();
         if (bw != null) bw.close();
 
         System.out.println("\n[+] Comparison successfully completed!");
-}
+    }
 
     public static String BuildExcelFile() {
 
@@ -689,8 +689,8 @@ public class CompareAndCleanHashmap {
                     int parsedNum = 0;
                     boolean isNumber = false;
                     if (isNumber(currentLine[col])) {
-                    	parsedNum = Integer.parseInt(currentLine[col]);
-                    	isNumber = true;
+                        parsedNum = Integer.parseInt(currentLine[col]);
+                        isNumber = true;
                     }
                     if (isNumber == false) {
                         if (row == 0) {
